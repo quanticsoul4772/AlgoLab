@@ -1,0 +1,20 @@
+Variable c : Reel ; f : Reel ; choix : Entier
+Debut
+  choix <- 1
+  TantQue choix != 0 Faire
+    Ecrire "1) C vers F" , "2) F vers C" , "0) Quitter"
+    Lire(choix)
+    Si choix == 1 Alors
+      Ecrire "Celsius :"
+      Lire(c)
+      f <- (c * 9 / 5) + 32
+      Ecrire "Fahrenheit =" , f
+    FinSi
+    Si choix == 2 Alors
+      Ecrire "Fahrenheit :"
+      Lire(f)
+      c <- (f - 32) * 5 / 9
+      Ecrire "Celsius =" , c
+    FinSi
+  FinTantQue
+Fin

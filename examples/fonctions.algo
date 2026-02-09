@@ -1,0 +1,9 @@
+Fonction Somme(a, b : Entier) : Entier
+  Retourner a + b
+FinFonction
+
+Variable resultat : Entier
+Debut
+  resultat <- Somme(2, 3)
+  Ecrire "Somme=" , resultat
+Fin

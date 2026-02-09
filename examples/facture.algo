@@ -1,0 +1,20 @@
+Variable prix : Reel[5] ; qte : Entier[5] ; i : Entier ; total : Reel
+Debut
+  prix[1] <- 12.5
+  prix[2] <- 9.9
+  prix[3] <- 5.0
+  prix[4] <- 20.0
+  prix[5] <- 3.5
+
+  Pour i De 1 A 5 Pas 1 Faire
+    Ecrire "Quantite article" , i , ":"
+    Lire(qte[i])
+  FinPour
+
+  total <- 0.0
+  Pour i De 1 A 5 Pas 1 Faire
+    total <- total + (prix[i] * qte[i])
+  FinPour
+
+  Ecrire "Total facture =" , total
+Fin

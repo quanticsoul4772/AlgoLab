@@ -1,0 +1,29 @@
+Variable choix : Entier ; a, b : Entier
+Debut
+  choix <- 1
+  TantQue choix != 0 Faire
+    Ecrire "Menu" , "1) Addition" , "2) Multiplication" , "3) Modulo" , "0) Quitter"
+    Lire(choix)
+    Si choix == 1 Alors
+      Ecrire "a :"
+      Lire(a)
+      Ecrire "b :"
+      Lire(b)
+      Ecrire "Resultat =" , (a + b)
+    FinSi
+    Si choix == 2 Alors
+      Ecrire "a :"
+      Lire(a)
+      Ecrire "b :"
+      Lire(b)
+      Ecrire "Resultat =" , (a * b)
+    FinSi
+    Si choix == 3 Alors
+      Ecrire "a (entier) :"
+      Lire(a)
+      Ecrire "b (entier) :"
+      Lire(b)
+      Ecrire "Resultat =" , (a % b)
+    FinSi
+  FinTantQue
+Fin

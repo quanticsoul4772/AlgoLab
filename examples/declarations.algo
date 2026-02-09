@@ -1,0 +1,10 @@
+Variable i, j : Entier ; nom : Chaine ; ok : Booleen
+Debut
+  i <- 1
+  j <- 2
+  nom <- "AlgoLab"
+  ok <- Vrai
+  Ecrire "i=" , i , "j=" , j
+  Ecrire "nom=" , nom
+  Ecrire "ok=" , ok
+Fin

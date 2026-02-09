@@ -1,0 +1,12 @@
+Variable nom : Caractere
+Variable age : Entier
+Debut
+  Ecrire "Entrez votre nom:"
+  Lire nom
+  Ecrire "Entrez votre age:"
+  Lire age
+  Ecrire "Bonjour"
+  Ecrire nom
+  Ecrire "Age"
+  Ecrire age
+Fin

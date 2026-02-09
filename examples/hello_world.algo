@@ -1,0 +1,5 @@
+Variable msg : Caractere
+Debut
+  msg <- "Je suis le seul à le réussir"
+  Ecrire msg
+Fin

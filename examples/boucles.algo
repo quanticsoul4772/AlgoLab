@@ -1,0 +1,12 @@
+Variable i, j : Entier
+Debut
+  Pour i De 1 A 10 Pas 2 Faire
+    Ecrire i
+  FinPour
+
+  j <- 0
+  TantQue j < 3 Faire
+    Ecrire j
+    j <- j + 1
+  FinTantQue
+Fin

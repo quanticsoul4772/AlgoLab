@@ -1,0 +1,130 @@
+// AlgoLab grammar (initial version)
+
+programme: preamble DEBUT instructions FIN
+
+preamble: (fonction | declaration)*
+
+fonction: FONCTION IDENTIFIER "(" params? ")" ":" type instructions RETOURNER expression FIN_FONCTION
+
+params: param_group (("," | ";") param_group)*
+param_group: identifiers ":" type
+
+declarations: declaration*
+
+instructions: instruction*
+
+instruction: affectation
+           | si
+           | tant_que
+           | pour
+           | lire
+           | ecrire
+           | appel_fonction
+
+// Declarations
+declaration: VARIABLE decl_list
+decl_list: decl_group (";" decl_group)*
+decl_group: identifiers ":" type
+identifiers: IDENTIFIER ("," IDENTIFIER)*
+
+type: TYPE array_spec?
+array_spec: "[" INT "]"
+
+// Assignments
+affectation: assignable ASSIGN expression
+assignable: IDENTIFIER
+          | array_access
+
+// Conditionals
+si: SI expression_booleenne ALORS instructions (SINON_SI expression_booleenne ALORS instructions)* (SINON instructions)? FIN_SI
+
+// Loops
+tant_que: TANT_QUE expression_booleenne FAIRE instructions FIN_TANT_QUE
+
+pour: POUR IDENTIFIER DE expression A expression (PAS expression)? FAIRE instructions FIN_POUR
+
+// IO
+lire: LIRE lire_args
+lire_args: assignable
+         | "(" assignable ")"
+ecrire: ECRIRE ecrire_args
+ecrire_args: expression ("," expression)*
+           | "(" expression ("," expression)* ")"
+
+// Function call (as instruction or expression)
+appel_fonction: IDENTIFIER "(" arguments? ")"
+arguments: expression ("," expression)*
+
+// Expressions
+expression: expression_arithmetique
+          | expression_booleenne
+          | chaine
+
+expression_booleenne: expression_arithmetique comparateur expression_arithmetique
+                     | expression_booleenne logique expression_booleenne
+                     | NON expression_booleenne
+                     | booleen
+
+comparateur: COMP
+logique: ET | OU
+
+expression_arithmetique: terme ((PLUS | MINUS) terme)*
+
+terme: facteur ((TIMES | DIV | MOD) facteur)*
+
+facteur: nombre
+       | array_access
+       | IDENTIFIER
+       | appel_fonction
+       | "(" expression_arithmetique ")"
+
+array_access: IDENTIFIER "[" expression_arithmetique "]"
+
+// Literals
+nombre: FLOAT | INT
+booleen: VRAI | FAUX
+chaine: STRING
+
+// Tokens
+INT: /-?[0-9]+/
+FLOAT: /-?[0-9]+\.[0-9]+/
+IDENTIFIER: /[a-zA-Z_][a-zA-Z0-9_]*/
+COMP: /==|!=|<=|>=|<|>/
+ASSIGN.3: "<-"
+PLUS: "+"
+MINUS: "-"
+TIMES: "*"
+DIV: "/"
+MOD: "%"
+
+DEBUT.2: /DEBUT/i
+FIN.2: /FIN/i
+VARIABLE.2: /VARIABLE/i
+SI.2: /SI/i
+ALORS.2: /ALORS/i
+SINON.2: /SINON/i
+SINON_SI.2: /SINON_?SI/i
+FIN_SI.2: /FIN_?SI/i
+TANT_QUE.2: /TANT_?QUE/i
+FAIRE.2: /FAIRE/i
+FIN_TANT_QUE.2: /FIN_?TANT_?QUE/i
+POUR.2: /POUR/i
+DE.2: /DE/i
+A.2: /A/i
+PAS.2: /PAS/i
+FIN_POUR.2: /FIN_?POUR/i
+LIRE.2: /LIRE/i
+ECRIRE.2: /ECRIRE/i
+NON.2: /NON/i
+ET.2: /ET/i
+OU.2: /OU/i
+VRAI.2: /VRAI/i
+FAUX.2: /FAUX/i
+TYPE.2: /ENTIER|REEL|CARACTERE|BOOLEEN|CHAINE/i
+FONCTION.2: /FONCTION/i
+FIN_FONCTION.2: /FIN_?FONCTION/i
+RETOURNER.2: /RETOURNER/i
+
+%import common.ESCAPED_STRING -> STRING
+%import common.WS
+%ignore WS

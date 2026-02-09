@@ -1,0 +1,19 @@
+Variable notes : Entier[30] ; i, n : Entier ; somme : Entier ; moyenne : Reel
+Debut
+  Ecrire "Nombre d etudiants (max 30) :"
+  Lire(n)
+  Si n > 30 Alors
+    Ecrire "Limite a 30"
+    n <- 30
+  FinSi
+
+  somme <- 0
+  Pour i De 1 A n Pas 1 Faire
+    Ecrire "Note etudiant" , i , ":"
+    Lire(notes[i])
+    somme <- somme + notes[i]
+  FINPOUR
+
+  moyenne <- somme / n
+  Ecrire( "Moyenne =" , moyenne)
+Fin

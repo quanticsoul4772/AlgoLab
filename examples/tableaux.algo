@@ -1,0 +1,11 @@
+Variable t : Entier[100]
+Variable i : Entier
+Debut
+  Pour i De 1 A 100 Pas 1 Faire
+    t[i] <- i * 2
+  FinPour
+
+  Pour i De 1 A 100 Pas 1 Faire
+    Ecrire "t[" , i , "]=" , t[i]
+  FinPour
+Fin

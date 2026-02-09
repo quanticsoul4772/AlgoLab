@@ -1,0 +1,15 @@
+Variable note : Entier
+Debut
+  Ecrire "Entrez la note :"
+  Lire(note)
+
+  Si note >= 16 Alors
+    Ecrire "Tres bien"
+  SinonSi note >= 12 Alors
+    Ecrire "Bien"
+  SinonSi note >= 10 Alors
+    Ecrire "Passable"
+  Sinon
+    Ecrire "Insuffisant"
+  FinSi
+Fin

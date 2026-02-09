@@ -1,0 +1,9 @@
+Variable x : Entier
+Debut
+  x <- 10
+  Si x > 5 Alors
+    Ecrire "x est grand"
+  Sinon
+    Ecrire "x est petit"
+  FinSi
+Fin

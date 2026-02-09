@@ -1,0 +1,27 @@
+Variable t : Entier[10] ; i, n : Entier ; maxv, minv : Entier
+Debut
+  Ecrire "Nombre de valeurs (max 10) :"
+  Lire(n)
+  Si n > 10 Alors
+    n <- 10
+  FinSi
+
+  Pour i De 1 A n Pas 1 Faire
+    Ecrire "Valeur" , i , ":"
+    Lire(t[i])
+  FinPour
+
+  maxv <- t[1]
+  minv <- t[1]
+  Pour i De 2 A n Pas 1 Faire
+    Si t[i] > maxv Alors
+      maxv <- t[i]
+    FinSi
+    Si t[i] < minv Alors
+      minv <- t[i]
+    FinSi
+  FinPour
+
+  Ecrire "Max =" , maxv
+  Ecrire "Min =" , minv
+Fin
