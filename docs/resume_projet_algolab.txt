@@ -1,0 +1,70 @@
+RESUME PROJET - ALGOLAB
+Date: 19/02/2026
+
+1) Vue d'ensemble
+AlgoLab est un interpréteur pédagogique de pseudo-code, implémenté en Python avec Lark.
+Le but est d'exécuter un langage proche des algorithmes appris en cours, avec des erreurs explicites et didactiques.
+
+2) Stack et organisation
+- Langage: Python 3
+- Parsing: Lark (requirements.txt: lark>=1.1.7)
+- Structure principale:
+  - src/algolab/: parser, interpréteur, environnement, erreurs, grammaire
+  - examples/: programmes .algo de démonstration
+  - scripts/: scripts d'exécution et validation rapide
+  - tests/: suite de tests active (parser, lexer, interpréteur, types, erreurs, cas limites)
+  - docs/: documentation harmonisée avec l'implémentation actuelle
+
+3) Fonctionnalités implémentées (état réel du code)
+- Parsing complet via grammaire Lark (fichier grammar.lark):
+  - Déclarations de variables typées
+  - Affectations
+  - Conditions SI / SINON_SI / SINON
+  - Boucles TANT_QUE et POUR (avec PAS optionnel)
+  - Entrée/sortie (LIRE, ECRIRE)
+  - Fonctions (définition, appel, retour)
+  - Tableaux typés (indexation)
+  - Expressions arithmétiques et booléennes
+- Exécution via Interpreter:
+  - Visiteur sur arbre Lark
+  - Évaluation des expressions, comparateurs et opérateurs logiques
+  - Gestion des fonctions avec environnement local
+  - Gestion des erreurs d'exécution (ex: division par zéro)
+- Mémoire et types via Environment:
+  - Déclaration/affectation/résolution de variables
+  - Contrôle de types (ENTIER, REEL, CARACTERE, BOOLEEN)
+  - Gestion de tableaux avec indexation 1..N
+  - Vérifications: non-déclaré, non-initialisé, index hors limites, type incompatible
+- Diagnostics:
+  - Exceptions dédiées: SyntaxErrorAlgoLab, SemanticErrorAlgoLab, RuntimeErrorAlgoLab
+  - Position ligne/colonne propagée
+  - Heuristiques utiles sur erreurs syntaxiques courantes (ALORS manquant, FAIRE manquant, PAS sans valeur, etc.)
+
+4) Points à connaître pour un développeur repreneur
+- Le fichier ast_nodes.py est un placeholder: le projet utilise l'arbre Lark directement (pas d'AST objet custom pour l'instant).
+- Le fichier lexer.py est aussi un placeholder: le lexer est porté par la grammaire Lark.
+- Le coeur est stable pour un MVP pédagogique, avec une doc technique désormais alignée sur le code.
+- La stratégie AST long terme reste un choix d'architecture à clarifier (Lark direct vs AST objet).
+
+5) Exécution locale
+- Via script shell:
+  scripts/run.sh examples/hello_world.algo
+- Via code inline:
+  scripts/run.sh -c "Variable x : Entier Debut x <- 3 Ecrire x Fin"
+- Validation rapide de grammaire:
+  python3 scripts/validate_grammar.py
+
+6) État qualité observé
+- Le cœur parse/exécution est significativement implémenté et cohérent.
+- La couverture de tests est en place sur les parcours critiques (incluant cas limites).
+- Dernier état validé: 24 tests passés via venv/bin/python -m pytest -q.
+
+7) Priorités recommandées (ordre de reprise)
+1. Renforcer les tests de non-régression sur des programmes complets du dossier examples/.
+2. Clarifier la roadmap architecture AST (maintien Lark direct ou transformation dédiée).
+3. Ajouter un guide contribution (conventions, stratégie de tests, workflow doc/code).
+4. Étendre progressivement le langage (sans casser la grammaire existante).
+5. Continuer l'amélioration des diagnostics pédagogiques sur erreurs complexes.
+
+8) Impression globale
+Projet en phase intermédiaire avancée: le MVP est fonctionnel, testé sur les cas critiques et documenté de façon cohérente. Les prochaines étapes concernent surtout l'industrialisation (non-régression, contribution, roadmap d'évolution).

@@ -1,130 +1,111 @@
-# Gestion de la Memoire et des Types
+# Gestion de la memoire et des types (etat implemente)
 
-### 2.3. Mots-cles Reserves
+Ce document decrit le comportement reel de la memoire d execution et des regles de types dans AlgoLab.
 
-Les mots-cles suivants sont reserves et ne peuvent pas etre utilises comme identifiants de variables ou de fonctions :
-`DEBUT`, `FIN`, `VARIABLE`, `ENTIER`, `REEL`, `CARACTERE`, `BOOLEEN`, `SI`, `ALORS`, `SINON`, `FIN_SI`, `TANT_QUE`, `FAIRE`, `FIN_TANT_QUE`, `POUR`, `DE`, `A`, `PAS`, `FIN_POUR`, `LIRE`, `ECRIRE`, `VRAI`, `FAUX`, `ET`, `OU`, `NON`.
+## 1. Modele memoire
 
-## 3. Structure de l Arbre Syntaxique Abstrait (AST)
+Le runtime s appuie sur `Environment` (`src/algolab/environment.py`) avec une table de symboles typee.
 
-L AST est une representation hierarchique du programme source, depouillee des details syntaxiques non essentiels. Lark generera automatiquement cet AST, que l interpreteur parcourra pour executer le code. Chaque noeud de l AST correspondra a une construction logique du langage.
+Structures principales :
 
-### 3.1. Exemples de Noeuds AST
+- `TypeSpec(base, size)`
+  - `base` : type scalaire (`ENTIER`, `REEL`, `CARACTERE`, `BOOLEEN`)
+  - `size` : taille du tableau si non nul
+- `Variable(type_spec, value)`
+- `Environment._values: dict[str, Variable]`
 
-*   **`programme`** : Noeud racine, contient une liste d instructions.
-*   **`declaration_variable`** : Contient l identifiant de la variable et son type.
-*   **`affectation`** : Contient l identifiant de la variable cible et l expression a affecter.
-*   **`si_alors_sinon`** : Contient l expression booleenne de la condition, une liste d instructions pour le bloc `ALORS`, et optionnellement une liste d instructions pour le bloc `SINON`.
-*   **`tant_que`** : Contient l expression booleenne de la condition et une liste d instructions pour le corps de la boucle.
-*   **`pour`** : Contient l identifiant de la variable d iteration, l expression de debut, l expression de fin, l expression du pas (optionnel), et une liste d instructions pour le corps de la boucle.
-*   **`lire`** : Contient l identifiant de la variable ou stocker la valeur lue.
-*   **`ecrire`** : Contient l expression ou la chaine de caracteres a afficher.
-*   **`appel_fonction`** : Contient l identifiant de la fonction et une liste d expressions pour les arguments.
-*   **`expression_booleenne`** : Represente une expression logique (comparaison, `ET`, `OU`, `NON`).
-*   **`expression_arithmetique`** : Represente une expression mathematique (`+`, `-`, `*`, `/`).
-*   **`_IDENTIFIER`**, **`_NUMBER`**, **`_STRING`** : Noeuds terminaux representant les valeurs litterales ou les references.
+Chaque environnement peut pointer vers un parent, ce qui permet la resolution de portees.
 
-### 3.2. Transformation de l AST (Optionnel : Transformer Lark)
+## 2. Portee et resolution
 
-Pour simplifier l interpretation, il pourra etre utile d utiliser la fonctionnalite `Transformer` de Lark. Cela permet de parcourir l AST genere par le parser et de le transformer en une structure plus optimisee ou plus facile a manipuler pour l interpreteur. Par exemple, on pourrait convertir les noeuds de l AST en objets Python specifiques representant chaque type d instruction ou d expression.
+Regles appliquees :
 
-## 4. Architecture Logicielle de l Interpreteur
+- declaration interdite en doublon dans le meme environnement,
+- resolution d un identifiant : scope courant puis chainage parent,
+- erreur semantique si variable non declaree,
+- erreur d execution si variable scalaire lue avant initialisation.
 
-L interpreteur AlgoLab sera structure en plusieurs modules Python, chacun ayant une responsabilite claire.
+Fonctions :
 
-### 4.1. Vue d Ensemble des Modules
+- un appel de fonction cree un environnement local enfant,
+- les parametres sont declares et affectes dans ce scope local,
+- la sortie de fonction restaure l environnement precedent.
 
-```mermaid
-graph TD
-    A[Code Pseudo-code] --> B(Lexer - Lark)
-    B --> C(Parser - Lark)
-    C --> D[Arbre Syntaxique Abstrait (AST)]
-    D --> E(Interpreteur/Executeur)
-    E --> F[Environnement d Execution (Variables, Fonctions)]
-    E --> G[Gestionnaire d Erreurs Pedagogiques]
-    F --> E
-    G --> H[Messages d Erreurs Utilisateur]
-    E --> I[Sortie (ECRIRE, Resultats)]
-```
+## 3. Types supportes et coercions
 
-### 4.2. Description Detaillee des Modules
+Types pris en charge en execution :
 
-1.  **`algolab_lexer.py` (via Lark)** :
-    *   **Role** : Convertir le texte source en une sequence de tokens.
-    *   **Implementation** : Utilisation de la grammaire EBNF definie dans Lark pour generer le lexer. Gere les espaces blancs et les retours a la ligne.
+- `ENTIER`
+- `REEL`
+- `CARACTERE`
+- `BOOLEEN`
 
-2.  **`algolab_parser.py` (via Lark)** :
-    *   **Role** : Verifier la conformite syntaxique des tokens et construire l AST.
-    *   **Implementation** : Utilisation de la grammaire EBNF de Lark pour generer le parser. En cas d erreur syntaxique, Lark leve une exception qui sera interceptee par le gestionnaire d erreurs.
+Note implementation : le token de grammaire accepte aussi `CHAINE`, mappe en runtime vers `CARACTERE`.
 
-3.  **`algolab_ast.py`** :
-    *   **Role** : Definir les classes de noeuds de l AST si une transformation manuelle est effectuee, ou servir de documentation pour la structure de l AST generee par Lark.
-    *   **Implementation** : Peut contenir des classes Python pour chaque type de noeud AST, facilitant l interpretation.
+Regles de coercion (runtime actuel) :
 
-4.  **`algolab_interpreter.py`** :
-    *   **Role** : Parcourir l AST et executer les instructions du programme.
-    *   **Implementation** : Une classe `Interpreter` avec une methode `visit(node)` qui dispatchera l execution en fonction du type de noeud AST. Utilise un `Environment` pour gerer les variables.
+- `ENTIER <- ENTIER` : accepte
+- `ENTIER <- REEL` : rejete (`Type attendu ENTIER`)
+- `REEL <- ENTIER` : accepte (coercion vers float)
+- `REEL <- REEL` : accepte
+- `CARACTERE <- str` : accepte
+- `BOOLEEN <- bool` : accepte
 
-5.  **`algolab_environment.py`** :
-    *   **Role** : Gerer la portee des variables (locale, globale) et stocker leurs valeurs.
-    *   **Implementation** : Une classe `Environment` qui maintient un dictionnaire de variables pour la portee courante et un lien vers la portee parente (pour les fonctions et les blocs de code).
+## 4. Tableaux
 
-6.  **`algolab_errors.py`** :
-    *   **Role** : Definir les classes d exceptions specifiques a AlgoLab et formuler des messages d erreurs pedagogiques.
-    *   **Implementation** : Classes comme `SyntaxErrorAlgoLab`, `SemanticErrorAlgoLab`, `RuntimeErrorAlgoLab`. Chaque exception contiendra des informations contextuelles (ligne, colonne, nature de l erreur) pour generer un message clair.
+Les tableaux sont a taille fixe :
 
-7.  **`algolab_main.py`** :
-    *   **Role** : Point d entree de l application. Gere la lecture du fichier source, l appel au lexer parser interpreteur, et l affichage des resultats ou des erreurs.
-    *   **Implementation** : Fonction principale qui orchestre l ensemble du processus.
+- declaration via `TypeSpec(..., size=n)`,
+- stockage interne : liste Python de longueur `n`, initialisee a `None`.
 
-## 5. Gestion de la Memoire et des Types
+Contraintes :
 
-### 5.1. Environnement d Execution
+- l affectation directe d un tableau complet est interdite,
+- indexation reservee aux variables tableau,
+- index attendu entier,
+- index logique de 1 a `n` (pas 0-based expose a l utilisateur).
 
-L interpreteur maintiendra une pile d environnements (`Environment` objects). Chaque fois qu un nouveau bloc de code avec sa propre portee est entre (par exemple, une fonction, un bloc `SI`, `TANT_QUE`, `POUR`), un nouvel environnement sera cree et empile. Les variables seront recherchees d abord dans l environnement courant, puis dans les environnements parents successifs.
+Erreurs associees :
 
-### 5.2. Types de Donnees
+- `Index de tableau doit etre un entier`
+- `Index de tableau commence a 1`
+- `Index de tableau hors limites`
+- `Variable non initialisee: nom[index]`
 
-AlgoLab supportera les types de donnees suivants, avec une verification de type basique lors de l affectation et des operations :
+## 5. Entrees / sorties et types
 
-*   **`ENTIER`** : Nombres entiers (ex: `10`, `-5`).
-*   **`REEL`** : Nombres a virgule flottante (ex: `3.14`, `-0.5`).
-*   **`CARACTERE`** : Chaines de caracteres (ex: "Bonjour", 'a').
-*   **`BOOLEEN`** : Valeurs logiques (`VRAI`, `FAUX`).
+`LIRE` convertit la saisie selon le type de la variable cible :
 
-Les conversions de type implicites seront limitees pour eviter la confusion. Par exemple, l affectation d un `REEL` a un `ENTIER` devrait generer une erreur semantique ou un avertissement, a moins d une conversion explicite (non prevue dans cette version initiale pour simplifier).
+- `ENTIER` -> `int`
+- `REEL` -> `float`
+- `CARACTERE` -> `str`
+- `BOOLEEN` -> `VRAI` / `FAUX`
 
-## 6. Systeme de Diagnostic et Messages d Erreurs Pedagogiques
+En cas d entree invalide, une erreur semantique explicite est levee.
 
-Un aspect crucial d AlgoLab est sa capacite a fournir des retours constructifs aux apprenants. Le systeme de diagnostic sera concu pour intercepter les erreurs a differents niveaux (lexical, syntaxique, semantique, execution) et les traduire en messages comprehensibles.
+## 6. Cas limites verifies par tests
 
-### 6.1. Types d Erreurs
+Couverts dans `tests/test_edge_cases.py` et modules associes :
 
-*   **Erreurs Lexicales** : Caracteres non reconnus.
-*   **Erreurs Syntaxiques** : Non-conformite a la grammaire du langage (ex: mot-cle manquant, structure incorrecte).
-*   **Erreurs Semantiques** : Problemes de logique qui ne sont pas des erreurs syntaxiques (ex: variable non declaree, operation sur types incompatibles).
-*   **Erreurs d Execution** : Problemes survenant pendant l execution (ex: division par zero, indice hors limites).
+- types mixtes (`ENTIER + REEL`),
+- rejet de `REEL -> ENTIER`,
+- appels de fonctions en chaine,
+- recursion (factorielle),
+- ecritures/lectures hors bornes tableau,
+- variables non initialisees,
+- variables non declarees.
 
-### 6.2. Format des Messages d Erreurs
+## 7. Limites actuelles
 
-Chaque message d erreur inclura :
-*   **Type d erreur** : (Ex: Erreur Syntaxique, Erreur Semantique).
-*   **Localisation** : Numero de ligne et de colonne ou l erreur a ete detectee.
-*   **Description claire** : Explication de l erreur en termes simples, evitant le jargon technique.
-*   **Suggestion de correction** : Si possible, une indication sur la maniere de resoudre le probleme.
+- pas de conversion explicite utilisateur (`cast`) dans le langage,
+- pas de types structures (objets, enregistrements),
+- pas de tableaux multidimensionnels,
+- pas de verification statique separee (controle principalement au runtime).
 
-**Exemples de messages d erreurs pedagogiques :**
+## 8. References code
 
-*   **Code** : `DEBUT\n  VARIABLE x : ENTIER\n  x <- 10\n  SI x > 5 ALORS\n    ECRIRE "x est grand"\n  FIN_SI\n  FIN_PROG`
-*   **Erreur** : `Erreur Syntaxique (Ligne 7, Colonne 7) : Mot-cle inattendu 'FIN_PROG'. Attendait 'FIN'.`
-*   **Suggestion** : `Verifiez que tous les blocs (DEBUT/FIN, SI/FIN_SI, TANT_QUE/FIN_TANT_QUE, POUR/FIN_POUR) sont correctement fermes avec le mot-cle approprie.`
-
-*   **Code** : `DEBUT\n  y <- 5\n  FIN`
-*   **Erreur** : `Erreur Semantique (Ligne 2, Colonne 3) : Variable 'y' non declaree avant utilisation.`
-*   **Suggestion** : `Declarez la variable 'y' avec le mot-cle 'VARIABLE' et son type avant de l utiliser (ex: VARIABLE y : ENTIER).`
-
-## 7. References
-
-[1] Lark Parsing Toolkit. (n.d.). *Documentation officielle*. [Lien](https://lark-parser.readthedocs.io/en/latest/)
-[2] Python Software Foundation. (n.d.). *Documentation Python*. [Lien](https://docs.python.org/3/)
-[3] Aho, A. V., Lam, M. S., Sethi, R., & Ullman, J. D. (2006). *Compilers: Principles, Techniques, and Tools (2nd ed.)*. Addison-Wesley. (Reference generale sur la conception de compilateurs et interpreteurs)
+- `src/algolab/environment.py`
+- `src/algolab/interpreter.py`
+- `src/algolab/grammar.lark`
+- `tests/test_types.py`
+- `tests/test_edge_cases.py`
