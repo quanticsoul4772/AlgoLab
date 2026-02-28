@@ -18,8 +18,8 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: algolab-linux
-            asset_name: algolab-linux
+            artifact_name: algolab_0.1.0_amd64.deb
+            asset_name: algolab-linux.deb
           - os: windows-latest
             artifact_name: algolab.exe
             asset_name: algolab-windows.exe
@@ -44,7 +44,14 @@ jobs:
           pip install pyinstaller
 
       - name: Build with PyInstaller
-        run: pyinstaller --name algolab --onefile src/algolab/main.py
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            chmod +x scripts/build_deb.sh
+            ./scripts/build_deb.sh
+          else
+            pyinstaller --name algolab --onefile src/algolab/main.py
+          fi
+        shell: bash
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
@@ -72,6 +79,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/algolab-linux/algolab-linux
+            dist/algolab-linux.deb/algolab_0.1.0_amd64.deb
             dist/algolab-windows.exe/algolab.exe
             dist/algolab-macos/algolab
