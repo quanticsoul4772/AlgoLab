@@ -10,7 +10,7 @@ PROJECT_ROOT=$(pwd)
 echo "=== Construction du binaire autonome avec PyInstaller ==="
 # Vérification d'un espace virtuel et dépendances (on installe si besoin)
 if [ ! -d ".venv" ]; then
-    echo "Environnement vituel introuvable. Création de .venv..."
+    echo "Environnement virtuel introuvable. Création de .venv..."
     python3 -m venv .venv
 fi
 source .venv/bin/activate
@@ -18,11 +18,11 @@ pip install -e .
 pip install pyinstaller
 
 # Compilation
-pyinstaller --name algolab --onefile src/algolab/main.py
+pyinstaller algolab.spec
 
 echo "=== Préparation de l'arborescence du paquet Debian ==="
 BUILD_DIR="${PROJECT_ROOT}/build/debian"
-VERSION="0.1.0"
+VERSION="$(python -c "import pathlib, re; content=pathlib.Path('pyproject.toml').read_text(encoding='utf-8'); match=re.search(r'^version\\s*=\\s*\"([^\"]+)\"', content, re.MULTILINE); print(match.group(1) if match else '0.1.0')")"
 DEB_NAME="algolab_${VERSION}_amd64"
 DEB_DIR="${BUILD_DIR}/${DEB_NAME}"
 

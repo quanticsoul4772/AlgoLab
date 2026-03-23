@@ -5,7 +5,7 @@ a = Analysis(
     ['src/algolab/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('src/algolab/grammar.lark', 'algolab')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

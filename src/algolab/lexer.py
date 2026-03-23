@@ -1,3 +1,10 @@
-"""Lexer for AlgoLab based on Lark."""
+"""Lexer helpers for AlgoLab.
 
-# Placeholder for Lark lexer configuration.
+AlgoLab uses Lark's contextual lexer directly through the parser factory.
+This module centralizes lexer-related constants to keep a stable import
+surface for future dedicated token tooling.
+"""
+
+from __future__ import annotations
+
+LEXER_MODE = "contextual"

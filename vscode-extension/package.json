@@ -12,9 +12,6 @@
     "Snippets"
   ],
   "main": "./extension.js",
-  "activationEvents": [
-    "onLanguage:algolab"
-  ],
   "icon": "images/algolab-full.png",
   "repository": {
     "type": "git",
@@ -28,6 +25,16 @@
         "icon": "$(play)"
       }
     ],
+    "configuration": {
+      "title": "AlgoLab",
+      "properties": {
+        "algolab.executablePath": {
+          "type": "string",
+          "default": "algolab",
+          "description": "Chemin vers l'exécutable AlgoLab (commande ou chemin absolu)."
+        }
+      }
+    },
     "menus": {
       "editor/title/run": [
         {

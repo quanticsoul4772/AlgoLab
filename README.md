@@ -9,7 +9,7 @@ Interpréteur pédagogique d'un pseudo-code, basé sur Lark. Le projet couvre la
 Si vous avez Python (>= 3.9) installé, vous pouvez installer AlgoLab globalement :
 
 ```bash
-pip install -e .
+pip install .
 ```
 
 Vous pouvez ensuite utiliser la commande `algolab` de n'importe où :
@@ -23,10 +23,33 @@ Pour ceux qui n'ont pas Python, un exécutable autonome peut être généré :
 
 ```bash
 pip install pyinstaller
-pyinstaller --name algolab --onefile src/algolab/main.py
+pyinstaller algolab.spec
 ```
 
 Le fichier exécutable compilé sera disponible dans le dossier `dist/`. Vous n'aurez qu'à le distribuer aux étudiants, ils pourront l'exécuter directement sans aucune dépendance !
+
+### Option 3 : Artefacts de release (Windows/macOS/Linux)
+
+Depuis les releases GitHub :
+
+- Linux : paquet `.deb`
+- Windows : exécutable `algolab.exe`
+- macOS : binaire `algolab`
+
+## ✅ Qualité et tests
+
+Installer les outils de développement :
+
+```bash
+pip install -e ".[dev]"
+```
+
+Vérifications recommandées :
+
+```bash
+ruff check .
+pytest --cov=src/algolab --cov-report=term-missing
+```
 
 ## 📚 Documentation & Exemples
 

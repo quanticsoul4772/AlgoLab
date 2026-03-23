@@ -11,20 +11,62 @@ on:
   workflow_dispatch:
 
 jobs:
+  quality:
+    name: Quality and Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -e ".[dev]"
+
+      - name: Ruff lint
+        run: ruff check src/algolab
+
+      - name: Run tests
+        run: pytest --maxfail=1 --disable-warnings --cov=src/algolab --cov-report=term-missing
+
+      - name: Smoke test CLI
+        run: algolab examples/hello_world.algo
+
+      - name: Build wheel
+        run: |
+          pip install build
+          python -m build --wheel
+
+      - name: Smoke test wheel install
+        run: |
+          python -m venv .venv-wheel
+          source .venv-wheel/bin/activate
+          pip install --upgrade pip
+          pip install dist/algolab-*.whl
+          algolab examples/hello_world.algo
+        shell: bash
+
   build:
     name: Build on ${{ matrix.os }}
+    needs: quality
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: algolab_0.1.0_amd64.deb
+            artifact_path: dist/algolab_*_amd64.deb
             asset_name: algolab-linux.deb
           - os: windows-latest
-            artifact_name: algolab.exe
+            artifact_path: dist/algolab.exe
             asset_name: algolab-windows.exe
           - os: macos-latest
-            artifact_name: algolab
+            artifact_path: dist/algolab
             asset_name: algolab-macos
 
     steps:
@@ -40,7 +82,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install -e .
+          pip install -e ".[dev]"
           pip install pyinstaller
 
       - name: Build with PyInstaller
@@ -49,7 +91,18 @@ jobs:
             chmod +x scripts/build_deb.sh
             ./scripts/build_deb.sh
           else
-            pyinstaller --name algolab --onefile src/algolab/main.py
+            pyinstaller algolab.spec
+          fi
+        shell: bash
+
+      - name: Smoke test built binary
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            ./dist/algolab examples/hello_world.algo
+          elif [ "${{ matrix.os }}" = "windows-latest" ]; then
+            ./dist/algolab.exe examples/hello_world.algo
+          else
+            ./dist/algolab examples/hello_world.algo
           fi
         shell: bash
 
@@ -57,7 +110,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
-          path: dist/${{ matrix.artifact_name }}
+          path: ${{ matrix.artifact_path }}
 
   release:
     name: Create Release Asset
@@ -79,6 +132,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            dist/algolab-linux.deb/algolab_0.1.0_amd64.deb
+            dist/algolab-linux.deb/algolab_*_amd64.deb
             dist/algolab-windows.exe/algolab.exe
             dist/algolab-macos/algolab
