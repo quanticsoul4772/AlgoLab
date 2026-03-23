@@ -129,6 +129,7 @@ jobs:
         run: |
           cd vscode-extension
           npm install
+          mkdir -p ../dist
           npx @vscode/vsce package --out ../dist/algolab-vscode.vsix
 
       - name: Upload VSIX Artifact
