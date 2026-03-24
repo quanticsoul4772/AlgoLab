@@ -55,6 +55,7 @@ pytest --cov=src/algolab --cov-report=term-missing
 ## 📚 Documentation & Exemples
 
 - Documentation de conception : voir `docs/`
+- Pack contenu site web et documentation : `docs/WEB_README.md`
 - Guide d'utilisation après installation (Linux/macOS/Windows) : `GUIDE_UTILISATION.md`
 - Guide d'installation de l'extension VS Code : `vscode-extension/README.md`
 - Code source : `src/algolab/`
